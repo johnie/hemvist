@@ -15,7 +15,9 @@ export const Route = createRootRoute({
     links: [{ rel: "stylesheet", href: appCss }],
     meta: [
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "hemvist" },
+      {
+        title: "hemvist — domain index for the chronically over-domained",
+      },
     ],
   }),
   component: RootComponent,
@@ -31,7 +33,7 @@ function RootComponent() {
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html className="dark" lang="en">
+    <html lang="en">
       <head>
         <HeadContent />
       </head>

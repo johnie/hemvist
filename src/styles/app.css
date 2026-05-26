@@ -128,3 +128,16 @@
     @apply font-mono;
   }
 }
+
+.block-title {
+  &::before {
+    display: inline-block;
+    content: "[ ";
+    @apply mr-1.5;
+  }
+  &::after {
+    display: inline-block;
+    content: " ]";
+    @apply ml-1.5;
+  }
+}
