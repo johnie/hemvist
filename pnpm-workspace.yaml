@@ -6,3 +6,13 @@ allowBuilds:
   workerd: true
 minimumReleaseAgeExclude:
   - ultracite@7.8.0
+  - '@cloudflare/vite-plugin@1.39.0'
+  - '@cloudflare/workerd-darwin-64@1.20260526.1'
+  - '@cloudflare/workerd-darwin-arm64@1.20260526.1'
+  - '@cloudflare/workerd-linux-64@1.20260526.1'
+  - '@cloudflare/workerd-linux-arm64@1.20260526.1'
+  - '@cloudflare/workerd-windows-64@1.20260526.1'
+  - miniflare@4.20260526.0
+  - shadcn@4.8.1
+  - workerd@1.20260526.1
+  - wrangler@4.95.0
