@@ -3,5 +3,13 @@
   "name": "hemvist",
   "compatibility_date": "2026-05-26",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "@tanstack/react-start/server-entry"
+  "main": "@tanstack/react-start/server-entry",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "hemvist",
+      "database_id": "1743fe9c-e70b-44d0-ade1-b0f98bb2a575",
+      "migrations_dir": "drizzle"
+    }
+  ]
 }
