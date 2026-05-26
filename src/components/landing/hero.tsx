@@ -1,6 +1,8 @@
 import { IconArrowRight } from "@tabler/icons-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { joinWaitlist } from "@/server/waitlist";
 
 const stats = [
   {
@@ -29,7 +31,35 @@ const stats = [
   },
 ];
 
+type Status =
+  | { kind: "idle" }
+  | { kind: "submitting" }
+  | { kind: "ok"; alreadySubscribed?: boolean }
+  | { kind: "error"; message: string };
+
 export function Hero() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<Status>({ kind: "idle" });
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (status.kind === "submitting") {
+      return;
+    }
+    setStatus({ kind: "submitting" });
+    try {
+      const res = await joinWaitlist({ data: { email } });
+      setStatus({ kind: "ok", alreadySubscribed: res.alreadySubscribed });
+      if (!res.alreadySubscribed) {
+        setEmail("");
+      }
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "something went wrong";
+      setStatus({ kind: "error", message });
+    }
+  }
+
   return (
     <section className="grid grid-cols-1 items-end gap-12 pb-9 md:grid-cols-[1.4fr_1fr]">
       <div>
@@ -51,7 +81,7 @@ export function Hero() {
         <form
           className="mt-7 flex max-w-md items-center gap-2"
           id="waitlist"
-          onSubmit={(e) => e.preventDefault()}
+          onSubmit={onSubmit}
         >
           <div className="relative flex-1">
             <span className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 font-medium text-primary">
@@ -60,21 +90,41 @@ export function Hero() {
             <Input
               aria-label="email address"
               className="h-9 pl-6 text-sm"
+              disabled={status.kind === "submitting"}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="you@your-favorite-domain.com"
+              required
               type="email"
+              value={email}
             />
           </div>
-          <Button className="h-9 px-3 text-sm" size="lg" type="submit">
-            join waitlist
+          <Button
+            className="h-9 px-3 text-sm"
+            disabled={status.kind === "submitting"}
+            size="lg"
+            type="submit"
+          >
+            {status.kind === "submitting" ? "joining…" : "join waitlist"}
             <IconArrowRight className="size-3.5" />
           </Button>
         </form>
         <p className="mt-2.5 text-[11px] text-muted-foreground/80">
-          early access · no spam · unsubscribe with one{" "}
-          <span className="border border-border bg-muted/60 px-1.5 py-0.5 font-mono text-[0.95em] text-foreground">
-            DELETE
-          </span>{" "}
-          request
+          {status.kind === "ok" &&
+            (status.alreadySubscribed
+              ? "already on the list — we'll be in touch."
+              : "you're in. check your inbox for what's next.")}
+          {status.kind === "error" && (
+            <span className="text-destructive">{status.message}</span>
+          )}
+          {(status.kind === "idle" || status.kind === "submitting") && (
+            <>
+              early access · no spam · unsubscribe with one{" "}
+              <span className="border border-border bg-muted/60 px-1.5 py-0.5 font-mono text-[0.95em] text-foreground">
+                DELETE
+              </span>{" "}
+              request
+            </>
+          )}
         </p>
       </div>
 
