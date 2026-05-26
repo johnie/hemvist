@@ -1,8 +1,9 @@
 import { IconArrowRight } from "@tabler/icons-react";
-import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { joinWaitlist } from "@/server/waitlist";
+import { joinInput, joinWaitlist } from "@/server/waitlist";
 
 const stats = [
   {
@@ -31,34 +32,20 @@ const stats = [
   },
 ];
 
-type Status =
-  | { kind: "idle" }
-  | { kind: "submitting" }
-  | { kind: "ok"; alreadySubscribed?: boolean }
-  | { kind: "error"; message: string };
-
 export function Hero() {
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<Status>({ kind: "idle" });
-
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (status.kind === "submitting") {
-      return;
-    }
-    setStatus({ kind: "submitting" });
-    try {
-      const res = await joinWaitlist({ data: { email } });
-      setStatus({ kind: "ok", alreadySubscribed: res.alreadySubscribed });
-      if (!res.alreadySubscribed) {
-        setEmail("");
+  const form = useAppForm({
+    defaultValues: { email: "" },
+    validators: { onSubmit: joinInput },
+    onSubmit: async ({ value, formApi }) => {
+      try {
+        await joinWaitlist({ data: value });
+      } catch {
+        // server logs failures; user always sees success
       }
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "something went wrong";
-      setStatus({ kind: "error", message });
-    }
-  }
+      toast.success("you're in. check your inbox for what's next.");
+      formApi.reset();
+    },
+  });
 
   return (
     <section className="grid grid-cols-1 items-end gap-12 pb-9 md:grid-cols-[1.4fr_1fr]">
@@ -79,53 +66,65 @@ export function Hero() {
         </p>
 
         <form
-          className="mt-7 flex max-w-md items-center gap-2"
+          className="mt-7 max-w-md"
           id="waitlist"
-          onSubmit={onSubmit}
+          onSubmit={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            form.handleSubmit();
+          }}
         >
-          <div className="relative flex-1">
-            <span className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 font-medium text-primary">
-              $
-            </span>
-            <Input
-              aria-label="email address"
-              className="h-9 pl-6 text-sm"
-              disabled={status.kind === "submitting"}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@your-favorite-domain.com"
-              required
-              type="email"
-              value={email}
-            />
-          </div>
-          <Button
-            className="h-9 px-3 text-sm"
-            disabled={status.kind === "submitting"}
-            size="lg"
-            type="submit"
-          >
-            {status.kind === "submitting" ? "joining…" : "join waitlist"}
-            <IconArrowRight className="size-3.5" />
-          </Button>
+          <form.AppField name="email">
+            {(field) => (
+              <field.FormItem>
+                <field.FormLabel>email</field.FormLabel>
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <span className="pointer-events-none absolute top-1/2 left-2.5 z-10 -translate-y-1/2 font-medium text-primary">
+                      $
+                    </span>
+                    <field.FormControl>
+                      <Input
+                        className="h-9 pl-6 text-sm"
+                        name={field.name}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        placeholder="you@your-favorite-domain.com"
+                        type="email"
+                        value={field.state.value}
+                      />
+                    </field.FormControl>
+                  </div>
+                  <form.Subscribe
+                    selector={(s) =>
+                      [s.isSubmitting, s.canSubmit] as [boolean, boolean]
+                    }
+                  >
+                    {([isSubmitting, canSubmit]) => (
+                      <Button
+                        className="h-9 px-3 text-sm"
+                        disabled={isSubmitting || !canSubmit}
+                        size="lg"
+                        type="submit"
+                      >
+                        {isSubmitting ? "joining…" : "join waitlist"}
+                        <IconArrowRight className="size-3.5" />
+                      </Button>
+                    )}
+                  </form.Subscribe>
+                </div>
+                <field.FormDescription>
+                  early access · no spam · unsubscribe with one{" "}
+                  <span className="border border-border bg-muted/60 px-1.5 py-0.5 font-mono text-[0.95em] text-foreground">
+                    DELETE
+                  </span>{" "}
+                  request
+                </field.FormDescription>
+                <field.FormMessage />
+              </field.FormItem>
+            )}
+          </form.AppField>
         </form>
-        <p className="mt-2.5 text-[11px] text-muted-foreground/80">
-          {status.kind === "ok" &&
-            (status.alreadySubscribed
-              ? "already on the list — we'll be in touch."
-              : "you're in. check your inbox for what's next.")}
-          {status.kind === "error" && (
-            <span className="text-destructive">{status.message}</span>
-          )}
-          {(status.kind === "idle" || status.kind === "submitting") && (
-            <>
-              early access · no spam · unsubscribe with one{" "}
-              <span className="border border-border bg-muted/60 px-1.5 py-0.5 font-mono text-[0.95em] text-foreground">
-                DELETE
-              </span>{" "}
-              request
-            </>
-          )}
-        </p>
       </div>
 
       <div className="grid grid-cols-2 gap-px bg-border ring-1 ring-border">
