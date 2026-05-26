@@ -1,3 +1,13 @@
+import { clientEnv } from "@/lib/env";
+
+function formatDate(date: string) {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}.${month}.${day}`;
+}
+
 export function SiteFooter() {
   return (
     <footer className="mt-16 flex flex-col gap-3 border-border border-t pt-6 text-[11px] text-muted-foreground md:flex-row md:items-center md:justify-between">
@@ -5,7 +15,7 @@ export function SiteFooter() {
         <span className="text-emerald-500">●</span>
         <span>all systems normal</span>
         <span className="text-muted-foreground/40">·</span>
-        <span>hemvist v0.0.1</span>
+        <span>hemvist v{clientEnv.VITE_BUILD_VERSION}</span>
         <span className="text-muted-foreground/40">·</span>
         <a
           className="transition-colors hover:text-foreground"
@@ -18,7 +28,11 @@ export function SiteFooter() {
         </a>
       </div>
       <div className="text-muted-foreground/80">
-        build a3f91d2 · 2026.05.26 · made in sweden{" "}
+        build{" "}
+        <a href={clientEnv.VITE_BUILD_GIT_SHA_URL}>
+          {clientEnv.VITE_BUILD_GIT_SHA}
+        </a>{" "}
+        · {formatDate(clientEnv.VITE_BUILD_TIME)} · made in sweden{" "}
         <svg
           className="inline-block size-4 align-middle"
           fill="none"

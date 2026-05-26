@@ -37,6 +37,10 @@
   "name": "hemvist",
   "version": "0.0.1",
   "packageManager": "pnpm@11.3.0",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:johnie/hemvist.git"
+  },
   "scripts": {
     "dev": "vite dev",
     "build": "vite build && tsc --noEmit",
