@@ -5,14 +5,11 @@ export function SiteFooter() {
         <span className="text-emerald-500">●</span>
         <span>all systems normal</span>
         <span className="text-muted-foreground/40">·</span>
-        <span>hemvist v0.4.2</span>
+        <span>hemvist v0.0.1</span>
         <span className="text-muted-foreground/40">·</span>
-        <a className="transition-colors hover:text-foreground" href="#features">
-          docs
-        </a>
         <a
           className="transition-colors hover:text-foreground"
-          href="https://github.com"
+          href="https://github.com/johnie/hemvist"
         >
           github
         </a>

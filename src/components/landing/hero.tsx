@@ -77,7 +77,9 @@ export function Hero() {
           <form.AppField name="email">
             {(field) => (
               <field.FormItem>
-                <field.FormLabel>email</field.FormLabel>
+                <field.FormLabel className="block-title font-medium text-[11px] text-muted-foreground uppercase tracking-[0.14em]">
+                  EMAIL
+                </field.FormLabel>
                 <div className="flex items-center gap-2">
                   <div className="relative flex-1">
                     <span className="pointer-events-none absolute top-1/2 left-2.5 z-10 -translate-y-1/2 font-medium text-primary">
